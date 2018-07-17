@@ -34,10 +34,6 @@ public class MainActivity extends AppCompatActivity {
     String longitude;
     String latitude;
 
-    public void updateLocationInfo(Location location) {
-
-        Log.i("Location", location.toString());
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -45,17 +41,11 @@ public class MainActivity extends AppCompatActivity {
 
         if (grantResults.length > 0 &&  grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-          startListeningLocation();
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            }
         }
-    }
-
-    public void startListeningLocation() {
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-        }
-
     }
 
     @SuppressLint("MissingPermission")
@@ -72,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onLocationChanged(Location location) {
+
+                Log.i("Location", location.toString());
 
                 Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
 
@@ -122,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT < 23) {
 
-            startListeningLocation();
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
         } else {
 
@@ -135,19 +127,43 @@ public class MainActivity extends AppCompatActivity {
             } else {
 
                 // we have permission!
-                startListeningLocation();
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
-
+                /*
 
                 // show user's current location when the app is lounged
                 Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-                if (lastKnownLocation != null) {
+                longitude = String.valueOf(lastKnownLocation.getLongitude());
+                latitude = String.valueOf(lastKnownLocation.getLatitude());
 
-                    updateLocationInfo();
+                Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+
+                try {
+
+                    List<Address> addressList = geocoder.getFromLocation(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), 1);
+
+                    if (addressList != null && addressList.size() > 0) {
+
+                        Log.i("Place Info", addressList.get(0).toString());
+
+                        String address = "";
+
+                        // get information from addressList
+
+                        if (addressList.get(0).getAddressLine(0) != null) {
+
+                            address += addressList.get(0).getAddressLine(0);
+                        }
+
+                        locationInfo.setText("Longitude: " + longitude + "\r\n" + "\r\n" + "Latitude: " + latitude + "\r\n" + "\r\n" + "Address: " + address);
+                    }
+
+                } catch (IOException e) {
+
+                    e.printStackTrace();
                 }
-
-
+                */
             }
         }
     }
